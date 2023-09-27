@@ -12,8 +12,8 @@ public class PlayerController : MonoBehaviour
     private float time;
     private bool animating;
 
-    public int playerX;
-    public int playerY;
+    private int playerX;
+    private int playerY;
 
     void Start()
     {
@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
             if (time <= 0){
 
                 // if current tile is a normal "open" tile
-                if (grid.Tile(playerX, playerY).Equals("open")){
+                if (grid.GetTile(playerX, playerY).Equals("open")){
 
                     // adjust position for consistency
                     objTransform.position = new Vector3(Mathf.Round(objTransform.position.x),
@@ -53,31 +53,11 @@ public class PlayerController : MonoBehaviour
 
                     int x = playerX;
                     int y = playerY;
-                    int tileNameLength = grid.Tile(x, y).Length;
 
-                    // if the tile is not an ice tile
-                    if (!grid.Tile(x, y).Equals("ice")){
-                        // configure direction to forced direction
-                        direction = grid.Tile(x, y).Substring(6,tileNameLength - 6);
-                    }
-                    // else, direction of forced movement is the direction
-                    // that the player is currently facing (no changes needed)
-
-                    // configure coordinates of next tile to check the next
-                    // tile that the player will possibly move to
-                    if (direction.Equals("up")){
-                        x = playerX;
-                        y = playerY - 1;
-                    } else if (direction.Equals("down")){  
-                        x = playerX;
-                        y = playerY + 1;
-                    } else if (direction.Equals("left")){
-                        x = playerX - 1;
-                        y = playerY;
-                    } else if (direction.Equals("right")){
-                        x = playerX + 1;
-                        y = playerY;
-                    }
+                    // configure direction accordingly
+                    List<int> Coordinates = ConfigureDirectionAndCoordinates(x, y);
+                    x = Coordinates[0];
+                    y = Coordinates[1];
 
                     // initiate moving to another tile
                     MoveTo(x, y);
@@ -129,11 +109,44 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // configure direction when movement is forced
+    List<int> ConfigureDirectionAndCoordinates(int x, int y)
+    {
+        int tileNameLength = grid.GetTile(x, y).Length;
+
+        // if the tile is not an ice tile
+        if (!grid.GetTile(x, y).Equals("ice")){
+            // configure direction to forced direction
+            direction = grid.GetTile(x, y).Substring(6,tileNameLength - 6);
+        }
+        // else, direction of forced movement is the direction
+        // that the player is currently facing (no changes needed)
+
+        // configure coordinates of next tile to check the next
+        // tile that the player will possibly move to
+        if (direction.Equals("up")){
+            y -= 1;
+        } else if (direction.Equals("down")){  
+            y += 1;
+        } else if (direction.Equals("left")){
+            x -= 1;
+        } else if (direction.Equals("right")){
+            x += 1;
+        }
+
+        // put potential new coordinates to a list and return it
+        List<int> Coordinates = new List<int>();
+        Coordinates.Add(x);
+        Coordinates.Add(y);
+
+        return Coordinates;
+    }
+
     // move player to tile with coordinates x and y
     void MoveTo(int x, int y)
     {
         // if moving to a "wall",
-        if(grid.Tile(x, y).Equals("wall")){
+        if(grid.GetTile(x, y).Equals("wall") || grid.GetTile(x, y).Equals("npc")){
             // adjust position for consistency
             objTransform.position = new Vector3(Mathf.Round(objTransform.position.x),
                                             Mathf.Round(objTransform.position.y), 0);
@@ -154,5 +167,15 @@ public class PlayerController : MonoBehaviour
             // initiate animation to (x, y)
             animating = true;
         }
+    }
+
+    // returns the current coordinates of the player
+    public List<int> GetPosition()
+    {
+        List<int> Coordinates = new List<int>();
+        Coordinates.Add(playerX);
+        Coordinates.Add(playerY);
+
+        return Coordinates;
     }
 }
