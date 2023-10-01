@@ -10,6 +10,7 @@ public class NPC1 : MonoBehaviour
     public PlayerController player;
     private int playerX;
     private int playerY;
+    public SpriteRenderer playerSprite;
 
     private Transform objTransform;
 
@@ -27,6 +28,7 @@ public class NPC1 : MonoBehaviour
     void Start()
     {
         objTransform = this.gameObject.transform;
+        playerSprite.flipX = true;
 
         startX = 0;
         endX = 2;
@@ -57,9 +59,11 @@ public class NPC1 : MonoBehaviour
                 // check if the player needs to switch directions
                 if (direction.Equals("left") && currentX == startX){
                     direction = "right";
+                    playerSprite.flipX = true;
 
                 } else if (direction.Equals("right") && currentX == endX){
                     direction = "left";
+                    playerSprite.flipX = false;
                 }
 
             } else {
