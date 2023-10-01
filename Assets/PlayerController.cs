@@ -153,6 +153,26 @@ public class PlayerController : MonoBehaviour
                 animator.SetBool("isSide", true);
             }
 
+            // also accept user input to interact with NPC
+            if (Input.GetKeyDown(KeyCode.Space)){
+                int npcX = playerX;
+                int npcY = playerY;
+
+                if (direction.Equals("up")){
+                    npcY -= 1;
+                } else if (direction.Equals("down")){
+                    npcY += 1;
+                } else if (direction.Equals("left")){
+                    npcX -= 1;
+                } else if (direction.Equals("right")){
+                    npcX += 1;
+                }
+
+                if(grid.GetTile(npcX, npcY).Equals("npc")){
+                    print("Player initiated interaction with NPC!");
+                }
+            }
+
             // initiate moving to next tile
             MoveTo(x, y);
         }
