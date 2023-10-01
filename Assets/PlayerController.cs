@@ -5,12 +5,14 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public StageGrid grid;
+    public Animator animator;
+    public SpriteRenderer playerSprite;
 
     private Transform objTransform;
     private int step;
     private string direction;
     private float time;
-    private bool animating;
+    private bool isWalking;
 
     private int playerX;
     private int playerY;
@@ -23,7 +25,7 @@ public class PlayerController : MonoBehaviour
 
         direction = "down";
         time = 0;
-        animating = false;
+        isWalking = false;
 
         // player is initially at the tile (1, 1)
         // Note: Counting starts with 0
@@ -33,8 +35,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if(animating)
+        if(isWalking)
         {
+            animator.SetFloat("Speed", 1);
+
             // if animation is finished,
             if (time <= 0){
 
@@ -46,7 +50,7 @@ public class PlayerController : MonoBehaviour
                                                     Mathf.Round(objTransform.position.y), 0);
 
                     // stop animation
-                    animating = false;
+                    isWalking = false;
                     
                 } else {
                     // if current tile forces movement,
@@ -68,18 +72,41 @@ public class PlayerController : MonoBehaviour
                 // move character accordingly
                 if (direction.Equals("up")){
                     objTransform.position += new Vector3(0, step * Time.deltaTime, 0);
+
+                    // make player face up
+                    animator.SetBool("isDown", false);
+                    animator.SetBool("isUp", true);
+                    animator.SetBool("isSide", false);
                 } else if (direction.Equals("down")){
                     objTransform.position += new Vector3(0, -step * Time.deltaTime, 0);
+
+                    // make player face down
+                    animator.SetBool("isDown", true);
+                    animator.SetBool("isUp", false);
+                    animator.SetBool("isSide", false);
                 } else if (direction.Equals("left")){
                     objTransform.position += new Vector3(-step * Time.deltaTime, 0, 0);
+
+                    // make player face left
+                    playerSprite.flipX = false;
+                    animator.SetBool("isDown", false);
+                    animator.SetBool("isUp", false);
+                    animator.SetBool("isSide", true);
                 } else if (direction.Equals("right")){
                     objTransform.position += new Vector3(step * Time.deltaTime, 0, 0);
+
+                    // make player face right
+                    playerSprite.flipX = true;
+                    animator.SetBool("isDown", false);
+                    animator.SetBool("isUp", false);
+                    animator.SetBool("isSide", true);
                 }
 
                 time -= Time.deltaTime;
             }
         } else {
-            // if there is no animation happening,
+            // if player is not moving
+            animator.SetFloat("Speed", 0);
 
             int x = -1;
             int y = -1;
@@ -90,18 +117,40 @@ public class PlayerController : MonoBehaviour
                 direction = "up";
                 x = playerX;
                 y = playerY - 1;
+
+                // make player face up
+                animator.SetBool("isDown", false);
+                animator.SetBool("isUp", true);
+                animator.SetBool("isSide", false);
             } else if (Input.GetKey(KeyCode.DownArrow)){
                 direction = "down";
                 x = playerX;
                 y = playerY + 1;
+
+                // make player face down
+                animator.SetBool("isDown", true);
+                animator.SetBool("isUp", false);
+                animator.SetBool("isSide", false);
             } else if (Input.GetKey(KeyCode.LeftArrow)){
                 direction = "left";
                 x = playerX - 1;
                 y = playerY;
+
+                // make player face left
+                playerSprite.flipX = false;
+                animator.SetBool("isDown", false);
+                animator.SetBool("isUp", false);
+                animator.SetBool("isSide", true);
             } else if (Input.GetKey(KeyCode.RightArrow)){
                 direction = "right";
                 x = playerX + 1;
                 y = playerY;
+
+                // make player face right
+                playerSprite.flipX = true;
+                animator.SetBool("isDown", false);
+                animator.SetBool("isUp", false);
+                animator.SetBool("isSide", true);
             }
 
             // initiate moving to next tile
@@ -152,7 +201,7 @@ public class PlayerController : MonoBehaviour
                                             Mathf.Round(objTransform.position.y), 0);
 
             // stop animation
-            animating = false;
+            isWalking = false;
 
         } else {
             // if moving to an open tile,
@@ -165,7 +214,7 @@ public class PlayerController : MonoBehaviour
             playerY = y;
 
             // initiate animation to (x, y)
-            animating = true;
+            isWalking = true;
         }
     }
 
